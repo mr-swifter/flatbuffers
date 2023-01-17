@@ -72,6 +72,18 @@ benchmark("structs") {
   fb.finish(offset: root)
 }
 
+benchmark("load") {
+  let size = (1024 * 4)
+  var bytes : [UInt8] = []
+  for i in 0..<size-1 { bytes.append(UInt8(truncatingIfNeeded: i)) }
+  let bb = ByteBuffer(bytes: bytes)
+  // hope optimizer will not eliminate the loop
+  for i in 0..<size/MemoryLayout<UInt32>.size {
+    let pos = (i * MemoryLayout<UInt32>.size)
+    _ = bb.read(def: UInt32.self, position: pos)
+  }
+}
+
 let str = (0...99).map { _ -> String in "x" }.joined()
 
 @usableFromInline
